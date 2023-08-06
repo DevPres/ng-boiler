@@ -14,7 +14,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
    
     Instead of using the platformBrowserDynamic() function in `main.ts` file to bootstrap the AppModule, 
     we can use the new bootstrapApplication() function from `@angular/platform-browser`. 
-    This function takes the entry component (The root component passed into this function must be a standalone one) of our app (usually the AppComponent) as the first argument and an object
+    This function takes the entry component of our app (The root component passed into this function must be a standalone one) as the first argument and an object
     of type `ApplicationConfig` as the second argument (see next step):
 
     ```ts
@@ -154,6 +154,110 @@ The routing structure that we are going to implement is strongly inspired by [th
 
 - Create first route
 
-    Before create the new route for our application, we have to create 
+    Before continuing: 
 
+    The folder structure presented here aims to replicate the structure of a file-based routing system used in other frameworks. The structure is organized as follows: 
 
+    This is an opinionated way to organize the application. I litteraly stolen the idea from [this repo](https://github.com/juanmesa2097/angular-boilerplate) 
+
+    ```tree
+    .
+    └── pages/
+        ├── home/
+        │   ├── home.component
+        │   └── index.ts
+        └── user/
+            ├── user.component
+            ├── index.ts
+            └── foo/
+                ├── foo.component
+                └── index.ts
+    ```
+    
+    In the `index.ts` file we will configure and export our routes as:
+
+    ```ts
+    export const routes: Routes = [
+        { 
+            path: '', 
+            title: 'home', 
+            loadComponent: 
+                () => import('@pages/home/home.component').then(m => m.HomeComponent)
+        },
+    ];
+    ```
+
+    Now let's create a dynamic HomeComponent!
+
+    First of all we can use an angular `schematics` to generate our components, so from the root of our project
+    in the terminal we can launch this command:
+    
+    ```bash
+    $ ng g c pages/home
+
+    CREATE src/app/pages/home/home.component.css (0 bytes)
+    CREATE src/app/pages/home/home.component.html (19 bytes)
+    CREATE src/app/pages/home/home.component.spec.ts (540 bytes)
+    CREATE src/app/pages/home/home.component.ts (365 bytes)
+    ```
+
+    Now that we have our components ready, we need to instruct Angular to load our component when the endpoint /home is accessed.
+
+    To achieve this, we first create an index.ts file inside the home folder. This file will serve as an entry point for the home module and will help us load the components correctly.
+    
+    ```ts
+    // /home/index.ts
+    export const routes: Routes = [
+        { 
+            path: '', 
+            title: 'home', 
+            loadComponent: 
+                () => import('@pages/home/home.component').then(m => m.HomeComponent)
+        }
+    ];
+    ```
+    To be able to load the pages from `pages` folder using `@pages/` path instead of absolute path, we have to add the alias in `tsconfig.json`:
+
+    ```json
+    {
+        ...
+        "compilerOptions": {
+            "paths": {
+                "@pages/*": ["src/app/pages/*"],
+            } 
+        }
+    }
+    ```
+
+    Now, we can go to the app.routes file and configure Angular to load our home routes when the /home endpoint is accessed.
+
+    ```ts
+    // /app/app.routes.ts
+    export const routes: Routes = [
+        { 
+            path: 'home',
+                loadChildren: () => import('@pages/home/').then(m => m.routes)  
+        },
+        { 
+            path: '', 
+            redirectTo: 'home',
+            pathMatch: 'full' 
+        },
+    ]
+    ```
+
+    The second route configuration specifies the default route when the application is accessed at the root URL (/).
+    In this case, it redirects to the home route.
+
+    Now we have to instruct Angular where load the component.
+    To achieve this, we can use the component `<router-outlet>` provided by the `RouterModule` in our `AppComponent`:
+
+    ```ts
+    @Component({
+        selector: 'app-root',
+        standalone: true,
+        imports: [RouterModule],
+        template: `<router-outlet></router-outlet>`,
+    }
+    ```
+    
