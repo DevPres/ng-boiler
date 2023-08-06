@@ -40,7 +40,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
     ```ts
     @Component({
-        selector: 'app-root',
+        selector: 'ngb-root',
         standalone:true,
         template: `
             <div>
@@ -254,10 +254,27 @@ The routing structure that we are going to implement is strongly inspired by [th
 
     ```ts
     @Component({
-        selector: 'app-root',
+        selector: 'ngb-root',
         standalone: true,
         imports: [RouterModule],
         template: `<router-outlet></router-outlet>`,
-    }
+    })
     ```
     
+    And now, the routing is working! 
+    
+- Catching unknown routes
+
+    To enhance the robustness of our routing, we can incorporate a straightforward handler for unknown routes
+    To achieve this, we can start by creating a '404.component' in our 'pages' folder.
+
+    ```ts
+    // pages/404.components
+    @Component({
+        selector: 'ngb-root',
+        standalone: true,
+        imports: [RouterModule],
+        template: `<router-outlet></router-outlet>`,
+    })
+    ```
+
