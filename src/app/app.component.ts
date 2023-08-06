@@ -1,13 +1,11 @@
 import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone:true,
-  template: `
-    <div>
-      <h1> Test {{ title }} </h1>
-    </div>
-  `,
+  imports: [RouterModule],
+  template: `<router-outlet></router-outlet>`,
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
