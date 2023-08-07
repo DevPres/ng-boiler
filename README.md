@@ -374,6 +374,47 @@ The routing structure that we are going to implement is strongly inspired by [th
 
     Now, as we did before, we can use the `<router-outlet>` component to load our sub-route in the `HomeComponent`
 
+    ```html
+    <!-- pages/home/home.component.html -->
+    <div class="container">
+      <div class="route-container">
+        <p>home works!</p>
+      </div>
+
+      <div class="sub-route-container">
+        <router-outlet></router-outlet>
+      </div>
+
+    </div>
+    ```
+    Remember to import the `RouterModule` in `HomeComponent`!
+
+    Add some simple css, just to understand what is going on:
+
+    ```css
+    /* pages/home/home.component.css */
+    .container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .sub-route-container {
+      border: 1px solid black;
+    }
+
+    .sub-route-container, .route-container {
+      width: 100%
+    }
+    ```
+    Now, when we navigate to /home/info, we can observe that our info component has been completely rendered!
+
+- Incorporating Layouts
+
+    At times, we have the need to maintain a persistent layout for certain pages, while for others, we may need to alter it or even remove it entirely.
+    In our project, for instance, we will be implementing a LayoutComponent, which will display a simple header bar, except in the case of the page not found, where it will be completely absent.
     
+
 
 
