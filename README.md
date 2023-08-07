@@ -51,7 +51,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
         ....
 
     ```
-
+    (If you want to change the prefix selector, you can do in `angular.json`, under the voice "prefix")
 
 - Modify angular.json
 
@@ -266,15 +266,114 @@ The routing structure that we are going to implement is strongly inspired by [th
 - Catching unknown routes
 
     To enhance the robustness of our routing, we can incorporate a straightforward handler for unknown routes
-    To achieve this, we can start by creating a '404.component' in our 'pages' folder.
+    To achieve this, we can start by creating a 'page-not-found.component' in our 'pages' folder with the command:
+
+    > ng g c validation --flat=true --inline-style=true --inline-template=true --skip-tests=true
 
     ```ts
-    // pages/404.components
+    // pages/page-not-found.components.ts
     @Component({
-        selector: 'ngb-root',
-        standalone: true,
-        imports: [RouterModule],
-        template: `<router-outlet></router-outlet>`,
+      selector: 'ngb-page-not-found',
+      standalone: true,
+      template: `
+        <p>
+          page-not-found works!
+        </p>
+      `,
+      styles: [
+      ],
+      changeDetection: ChangeDetectionStrategy.OnPush
     })
+    export class PageNotFoundComponent {
+
+    }
     ```
+
+    Then in our `app.routes` , kindly instruct angular what load when no route was found:
+
+    ```ts
+    export const routes: Routes = [
+      { 
+        path: '', 
+        redirectTo: 'home',
+        pathMatch: 'full' 
+      },
+      { 
+          path: 'home',
+          loadChildren: () => import('@pages/home/').then(m => m.routes)  
+      },
+      {
+          path: "**",
+          loadComponent: () => import('@pages/page-not-found.component').then(m => m.PageNotFoundComponent)
+      }
+    ]
+    ```
+    And that's it, we can catch all the routes that are unknown to our apllication
+
+    And with that, we can now capture all the routes that are unknown to our application.
+
+- Create first sub-route
+    
+    I previously mentioned that the homepage would be dynamic, so let's introduce some dynamism!
+
+    Create two component in `pages/home/folder`:
+    
+    ```tree
+    .
+    └── pages/
+        ├── home/
+        │   ├── dashboard/
+        │   │   └── ...
+        │   └── info/
+        │       └── ...
+        └── ...
+    ```
+   
+    Now let's instruct Angular to load the dashboard component when the /home/dashboard endpoint is accessed, and load the info component when the /home/info/ endpoint is accessed.
+    
+    ```ts
+    // pages/home/index.ts
+    export const routes: Routes = [
+      { 
+        path: '', 
+        title: 'home', 
+        loadComponent: 
+            () => import('@pages/home/home.component').then(m => m.HomeComponent),
+        children: [
+          {
+            path: 'dashboard', 
+            loadComponent: 
+                () => import('@pages/home/dashboard/dashboard.component').then(m => m.DashboardComponent),
+          },
+          {
+            path: 'info',
+            loadComponent:
+              () => import('@pages/home/info/info.component').then(m => m.InfoComponent),
+          },
+        ]
+      }
+    ];
+    ```
+
+    Let's correct our redirect in app.routes to ensure that at least our dashboard component is loaded.
+    
+    ```ts
+    // /app/app.routes.ts
+    export const routes: Routes = [
+        { 
+            path: 'home',
+                loadChildren: () => import('@pages/home/').then(m => m.routes)  
+        },
+        { 
+            path: '', 
+            redirectTo: 'home/dahsboard',
+            pathMatch: 'full' 
+        },
+    ]
+    ```
+
+    Now, as we did before, we can use the `<router-outlet>` component to load our sub-route in the `HomeComponent`
+
+    
+
 
